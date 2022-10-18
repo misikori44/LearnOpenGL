@@ -112,16 +112,24 @@ int main()
     }; 
 
     unsigned int VBO, VAO;
-    glGenVertexArrays(1, &VAO);
+    // VAO - opis strukture -- cast
+    // VBO - Memorija GPU -- malloc
+
+    glGenVertexArrays(1, &VAO); // prvi parametar koliko takvih objekata zelimo, dodeljuje VAO identifikator;
     glGenBuffers(1, &VBO);
     // bind the Vertex Array Object first, then bind and set vertex buffer(s), and then configure vertex attributes(s).
-    glBindVertexArray(VAO);
+    glBindVertexArray(VAO); // GLBind aktivira neki objekat, koriste se samo aktivni
 
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(vertices), vertices, GL_STATIC_DRAW);
 
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
-    glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0); // definise atribut
+                        // koji po redu atribut zelimo da def - 0
+                        // atribut ima 3 float-a;
+                        // GL_FALSE - da li zelimo da normalizuje podatke - uvek false
+                        // kolika je velicina jednog Vertex-a;
+
+    glEnableVertexAttribArray(0); // atribut cemo koristiti u iscrtavanju
 
     // note that this is allowed, the call to glVertexAttribPointer registered VBO as the vertex attribute's bound vertex buffer object so afterwards we can safely unbind
     glBindBuffer(GL_ARRAY_BUFFER, 0); 
@@ -148,6 +156,10 @@ int main()
         glClear(GL_COLOR_BUFFER_BIT);
 
         // draw our first triangle
+        // 1. shader?
+        // 2. sta crtamo?
+        // 3. crtaj
+        
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawArrays(GL_TRIANGLES, 0, 3);
