@@ -2,6 +2,7 @@
 #include <GLFW/glfw3.h>
 
 #include <iostream>
+#include <cmath>
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
@@ -13,21 +14,43 @@ const unsigned int SCR_HEIGHT = 600;
 const char *vertexShaderSource = R"s(
 #version 330 core
 layout (location = 0) in vec3 aPos;
+layout (location = 1) in vec3 aColor;
+out vec3 VertexColor;
 void main()
 {
    gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);
+   VertexColor = aColor;
+
 }
 
-)s";
+)s"; // pozicija vertexa na ekranu
 
 const char *fragmentShaderSource = R"s(
 #version 330 core
 out vec4 FragColor;
+in vec3 VertexColor;
+
+uniform vec4 Color; 
+// dodajemo uniformnu promenljivu (globalna promenljiva za taj shader / ogranicen je broj uniformnih promenljivih)
+// saljemo vrednosti koje se cesto menjaju iz frejma u frejm
 void main()
 {
-   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+   //FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);
+   //FragColor = Color; -> ovo kada sami menjamo boju 
+   FragColor = vec4(VertexColor, 1.0);
 }
-)s";
+)s"; // boji svaki fragment koji objekat koji crtamo pokriva
+
+class Shader{
+
+public:
+    Shader(const char* vertexShaderSource, const char* fragmentShaderSource){
+
+        
+
+    }
+
+}
 
 int main()
 {
@@ -63,12 +86,12 @@ int main()
     }
 
 
-    // build and compile our shader program
+    // build and compile our shader program -- pravimo, nakacimo source, compile, na kraju link
     // ------------------------------------
     // vertex shader
     int vertexShader = glCreateShader(GL_VERTEX_SHADER);
-    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL);
-    glCompileShader(vertexShader);
+    glShaderSource(vertexShader, 1, &vertexShaderSource, NULL); // nakacimo source code
+    glCompileShader(vertexShader); 
     // check for shader compile errors
     int success;
     char infoLog[512];
@@ -106,9 +129,9 @@ int main()
     // set up vertex data (and buffer(s)) and configure vertex attributes
     // ------------------------------------------------------------------
     float vertices[] = {
-        -0.5f, -0.5f, 0.0f, // left  
-         0.5f, -0.5f, 0.0f, // right 
-         0.0f,  0.5f, 0.0f  // top   
+        -0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f,// left  
+         0.5f, -0.5f, 0.0f, 0.0f, 1.0f, 0.0f, // right 
+         0.0f,  0.5f, 0.0f, 0.0f, 0.0f, 1.0f // top   
     }; 
 
     unsigned int VBO, VAO;
@@ -128,6 +151,12 @@ int main()
                         // atribut ima 3 float-a;
                         // GL_FALSE - da li zelimo da normalizuje podatke - uvek false
                         // kolika je velicina jednog Vertex-a;
+
+    // glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float))); // dodao offset kao novi atribut. i gore treba da ide 5 * sizeof(float); 
+    // glEnableVertexAttribArray(1);
+
+     // glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float))); // dodao aColor kao novi atribut. i gore treba da ide 6 * sizeof(float); 
+    // glEnableVertexAttribArray(1);
 
     glEnableVertexAttribArray(0); // atribut cemo koristiti u iscrtavanju
 
@@ -161,6 +190,18 @@ int main()
         // 3. crtaj
         
         glUseProgram(shaderProgram);
+
+        // //stavljamo da se boja menja
+
+        // float t = glfwGetTime(); // vreme u sekundama od startovanja aplikacije
+        // float redValue = (sin(t) + 1.0f) / 2.0f;
+
+        // /* -- uzimamo uniformnu promenljivu --*/
+
+        // int uniformColorLocation = glGetUniformLocation(shaderProgram, "Color");
+        
+        // glUniform4f(uniformColorLocation, redValue, 0.4f, 0.5f, 1.0f); // 4f u imenu oznacava koliko float-ova ima, prvi parametar lokacija, ostale su vrednosti boja
+        
         glBindVertexArray(VAO); // seeing as we only have a single VAO there's no need to bind it every time, but we'll do so to keep things a bit more organized
         glDrawArrays(GL_TRIANGLES, 0, 3);
         // glBindVertexArray(0); // no need to unbind it every time 
