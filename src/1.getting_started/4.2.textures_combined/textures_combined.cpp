@@ -7,6 +7,8 @@
 
 #include <iostream>
 
+#include <glm/glm.hpp>
+
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
 void processInput(GLFWwindow *window);
 
@@ -162,6 +164,13 @@ int main()
         // ------
         glClearColor(0.2f, 0.3f, 0.3f, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
+
+        //glm::ime_transformacije(m, ..)
+        glm::mat4 transform = glm::mat4(1.0f);
+        transform = glm::translate(transform, glm::vec3(0.5f, 0.5f, 0.0f));
+        transform = glm::rotate(transform, (float)glfwGetTime(), glm::vec3(0.0f, 0.0f, 1.0f));
+
+        ourShader.setMat4("transform", transform);
 
         // bind textures on corresponding texture units
         glActiveTexture(GL_TEXTURE0);
